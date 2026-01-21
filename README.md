@@ -33,15 +33,6 @@ Install-Package Easy.Tools.Finance.CBAR
 
 ---
 
-## Features
-
-* **Easy Integration:** Fully compatible with .NET Dependency Injection (DI).
-* **Resilience (Retry Logic):** Includes built-in retry mechanisms to handle temporary network glitches or CBAR server timeouts.
-* **Type-Safe:** Automatically handles XML parsing and returns clean C# objects with `decimal` properties.
-* **Configurable:** Retry counts and delay durations are fully customizable via options.
-
----
-
 ## Usage
 
 ### 1. Service Registration (Program.cs)
