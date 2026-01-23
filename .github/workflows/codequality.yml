@@ -1,4 +1,4 @@
-name: Code Quality and Security Scan
+﻿name: Code Quality and Security Scan
 
 on:
   workflow_dispatch:
@@ -29,7 +29,14 @@ jobs:
         id: find-sln
         shell: pwsh
         run: |
-          $slnFile = Get-ChildItem -Filter *.sln | Select-Object -First 1
+          $slnFile = Get-ChildItem -Path . -Include *.sln, *.slnx -Recurse | Select-Object -First 1
+          
+          if ($null -eq $slnFile) {
+              Write-Error "No solution file (.sln or .slnx) found!"
+              exit 1
+          }
+          
+          Write-Host "Solution found: $($slnFile.Name)"
           "sln-file=$($slnFile.Name)" >> $env:GITHUB_OUTPUT
 
       - name: Restore dependencies
@@ -69,7 +76,7 @@ jobs:
         id: find-sln
         shell: pwsh
         run: |
-          $slnFile = Get-ChildItem -Filter *.sln | Select-Object -First 1
+          $slnFile = Get-ChildItem -Path . -Include *.sln, *.slnx -Recurse | Select-Object -First 1
           "sln-file=$($slnFile.Name)" >> $env:GITHUB_OUTPUT
 
       - name: Build the solution
