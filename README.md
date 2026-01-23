@@ -21,13 +21,13 @@ Easy.Tools.Finance.CBAR is a lightweight .NET library designed to fetch daily ex
 
 Install via NuGet:
 
-```
+```bash
 dotnet add package Easy.Tools.Finance.CBAR
 ```
 
 Or via NuGet Package Manager:
 
-```
+```bash
 Install-Package Easy.Tools.Finance.CBAR
 ```
 

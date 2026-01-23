@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>net10.0;netstandard2.0;</TargetFrameworks>
+		<TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0;netstandard2.0;</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -22,7 +22,8 @@
 		<AssemblyTitle>Easy.Tools.Finance.CBAR</AssemblyTitle>
 		<AssemblyName>Easy.Tools.Finance.CBAR</AssemblyName>
 		<PackageId>Easy.Tools.Finance.CBAR</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
+		<PackageIcon>icon.png</PackageIcon>
 		<Authors>Elmin Alirzayev</Authors>
 		<Company>Easy Code Tools</Company>
 		<Copyright>Copyright © Elmin Alirzayev 2025</Copyright>
@@ -35,7 +36,7 @@
 		<PackageReleaseNotes>Initial release: Supports daily rate fetching, retry logic, and DI integration.</PackageReleaseNotes>
 
 		<!-- Build -->
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -46,6 +47,10 @@
 
 	<ItemGroup>
 		<None Include="README.md">
+			<Pack>true</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="icon.png">
 			<Pack>true</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
