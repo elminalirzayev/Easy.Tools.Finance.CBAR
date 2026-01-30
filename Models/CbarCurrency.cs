@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
-using System.Text.RegularExpressions; // Regex eklendi
 using System.Xml.Serialization;
 
-namespace Easy.Tools.Finance.CBAR.Models
+namespace Easy.Tools.Finance.CBAR
 {
     /// <summary>
     /// Represents a single currency or metal unit from CBAR XML data.
@@ -17,7 +16,7 @@ namespace Easy.Tools.Finance.CBAR.Models
         public string? Code { get; set; }
 
         /// <summary>
-        /// Nominal amount string from XML (e.g. "1", "100", "1 t.u.").
+        /// Raw nominal amount string from XML (e.g. "1", "100", "1 t.u.").
         /// </summary>
         [XmlElement("Nominal")]
         public string? NominalStr { get; set; }
@@ -29,16 +28,14 @@ namespace Easy.Tools.Finance.CBAR.Models
         public string? Name { get; set; }
 
         /// <summary>
-        /// Exchange rate value string from XML.
+        /// Raw exchange rate value string from XML (e.g., "1.7000").
         /// </summary>
         [XmlElement("Value")]
         public string? ValueStr { get; set; }
 
-        // --- New Property: Type ---
-
         /// <summary>
-        /// Type of the currency (e.g., "Xarici valyutalar", "Bank metalları").
-        /// Filled automatically during parsing.
+        /// Type of the currency (e.g., "Xarici valyutalar").
+        /// This field is populated manually by the Client logic, not by XML deserialization.
         /// </summary>
         [XmlIgnore]
         public string? CurrencyType { get; set; }
@@ -46,38 +43,56 @@ namespace Easy.Tools.Finance.CBAR.Models
         // --- Helper Properties ---
 
         /// <summary>
-        /// The exchange rate parsed as decimal.
+        /// The exchange rate parsed as decimal. Returns 0 if parsing fails.
         /// </summary>
         [XmlIgnore]
-        public decimal Value => ParseDecimal(ValueStr);
+        public decimal Value
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(ValueStr)) return 0m;
+
+                // Fast path: InvariantCulture is used because CBAR always sends dot (.) separator.
+                return decimal.TryParse(ValueStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var val)
+                    ? val
+                    : 0m;
+            }
+        }
 
         /// <summary>
         /// The nominal amount parsed as integer. 
-        /// Handles "1 t.u." by taking the first numeric part.
+        /// Handles suffixes like "1 t.u." efficiently without string allocations.
         /// </summary>
         [XmlIgnore]
         public int Nominal => ParseNominal(NominalStr);
 
         /// <summary>
-        /// Parses string to decimal using InvariantCulture.
+        /// Parses the nominal string efficiently.
         /// </summary>
-        private decimal ParseDecimal(string? val)
-        {
-            if (string.IsNullOrWhiteSpace(val)) return 0;
-            return decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result) ? result : 0;
-        }
-
-        /// <summary>
-        /// Parses nominal string, handling suffixes like " t.u.".
-        /// </summary>
-        private int ParseNominal(string? val)
+        private static int ParseNominal(string? val)
         {
             if (string.IsNullOrWhiteSpace(val)) return 1;
 
-            // Simple Logic: Take the first part before space (e.g., "1 t.u." -> "1")
-            var firstPart = val?.Split(' ')[0];
+#if NET6_0_OR_GREATER || NETSTANDARD2_1
+            // Modern .NET: Zero-Allocation using Span<char>
+            ReadOnlySpan<char> span = val.AsSpan();
 
-            return int.TryParse(firstPart, out int result) ? result : 1;
+            int spaceIndex = span.IndexOf(' ');
+            ReadOnlySpan<char> numberPart = spaceIndex > 0 ? span.Slice(0, spaceIndex) : span;
+
+            return int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result)
+                ? result
+                : 1;
+#else
+            // Legacy .NET: Efficient substring
+            int spaceIndex = val!.IndexOf(' ');
+            string numberPart = spaceIndex > 0 ? val.Substring(0, spaceIndex) : val;
+
+            return int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) 
+                ? result 
+                : 1;
+#endif
         }
+
     }
 }

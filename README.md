@@ -7,56 +7,55 @@
 
 # Easy.Tools.Finance.CBAR
 
-Easy.Tools.Finance.CBAR is a lightweight .NET library designed to fetch daily exchange rates from the **Central Bank of Azerbaijan (CBAR/AMB)**.
+**Easy.Tools.Finance.CBAR** is a high-performance, enterprise-ready .NET library designed to fetch official daily exchange rates from the **Central Bank of Azerbaijan (CBAR/AMB)**.
 
-##  Features
+It handles XML parsing, network resilience, and data flattening efficiently, allowing developers to focus on business logic.
 
-* **Multi-Target:** Supports `.NET Standard 2.0`, `.NET 8.0`, and `.NET 9.0`.
-* **Resilient:** Built-in retry logic for handling network glitches.
-* **Easy Integration:** Seamless integration with `IServiceCollection` (Dependency Injection).
-* **Flattened Data:** Automatically handles CBAR's nested XML structure and returns a clean list of currencies.
+
+## Features
+
+- ** High Performance:** Uses **Static XML Serializer** caching and **Zero-Allocation** `Span<T>` parsing logic to minimize memory pressure.
+- ** Resilience:** Built-in **Retry Policy** with exponential backoff for handling network glitches.
+- ** Culture Safe:** Parsing logic is strictly **Invariant Culture**, ensuring stability regardless of the server's regional settings.
+- ** Easy Integration:** Single-line integration with `IServiceCollection` (Dependency Injection).
+- ** Async & Cancellable:** Full support for `async/await` and `CancellationToken` to handle request timeouts properly.
+- ** Multi-Target:** Supports `.NET 10`, `.NET 8`, `.NET 6`, `.NET Standard 2.0`, and `.NET Framework 4.7.2+`.
 
 
 ## Installation
 
-Install via NuGet:
-
-```bash
-dotnet add package Easy.Tools.Finance.CBAR
-```
-
-Or via NuGet Package Manager:
+Install via NuGet Package Manager:
 
 ```bash
 Install-Package Easy.Tools.Finance.CBAR
 ```
 
----
+Or via .NET CLI:
+
+```bash
+dotnet add package Easy.Tools.Finance.CBAR
+```
 
 ## Usage
 
 ### 1. Service Registration (Program.cs)
 
-Register the service in your `Program.cs`:
+Register the client in your `Program.cs`. The library provides a fluent extension method.
 
 ```csharp
-using Easy.Tools.Finance.CBAR.Extensions;
+using Easy.Tools.Finance.CBAR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Standard registration:
+// 1. Standard Registration
 builder.Services.AddCbarClient();
 
-// OR: Registration with custom options:
+// 2. OR: Advanced Configuration
 builder.Services.AddCbarClient(options => 
 {
-    options.RetryCount = 5;         // Retry 5 times on failure
-    options.RetryDelaySeconds = 2;  // Wait 2 seconds between retries
-});
-//OR: Registration with custom CBAR Base URL (e.g., using a proxy or mirror):
-builder.Services.AddCBARClient(options =>
-{
-    options.BaseUrl = "https://my-proxy-server.com/cbar-mirror/";
+    options.RetryCount = 3;             // Retry 3 times on failure
+    options.RetryDelaySeconds = 2;      // Wait 2 seconds between retries
+    // options.BaseUrl = "...";         // Optional: Use a proxy URL if needed
 });
 
 var app = builder.Build();
@@ -65,7 +64,7 @@ var app = builder.Build();
 
 ### 2. Fetching Rates (Controller Example)
 
-Inject `ICbarClient` into your controllers or services.
+Inject `ICbarClient` into your controllers or services. Ensure you pass the `CancellationToken` for best practices.
 
 ```csharp
 using Easy.Tools.Finance.CBAR;
@@ -82,54 +81,58 @@ public class CurrencyController : ControllerBase
         _cbarClient = cbarClient;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetRates()
+    [HttpGet("today")]
+    public async Task<IActionResult> GetRates(CancellationToken cancellationToken)
     {
-        // Fetch all rates        
-            var rates =  await _cbarClient.GetTodayRatesAsync();
+        // Fetch all rates efficiently
+        var rates = await _cbarClient.GetTodayRatesAsync(cancellationToken);
 
-        // 1. Sadecə Valyutaları Al (USD, EUR vs.)
-            var currencies = rates.Where(x => x.CurrencyType == "Xarici valyutalar").ToList();
+        // Example 1: Filter Foreign Currencies (USD, EUR, etc.)
+        var currencies = rates.Where(x => x.CurrencyType == "Xarici valyutalar").ToList();
 
-        // 2. Sadecə Qiymətli Metallerı Al (Qızıl, Gümüş vs.)
-           // "Bank metalları"
-            var metals = rates.Where(x => x.CurrencyType == "Bank metalları").ToList();
+        // Example 2: Filter Precious Metals (Gold, Silver, etc.)
+        var metals = rates.Where(x => x.CurrencyType == "Bank metalları").ToList();
 
+        // Get Specific Rates
+        var usd = currencies.FirstOrDefault(x => x.Code == "USD");
+        var gold = metals.FirstOrDefault(x => x.Code == "XAU"); // XAU = Gold
 
-            var gold = metals.FirstOrDefault(x => x.Code == "XAU");
-            if (gold != null)
-            {
-                Console.WriteLine($"1 Unsiya Qızıl: {gold.Value} AZN");
-            }
-            var usd = currencies.FirstOrDefault(x => x.Code == "USD");
-            if (usd != null)
-            {
-                Console.WriteLine($"1 ABŞ Dolları: {usd.Value} AZN");
-            }
+        if (usd != null)
+            Console.WriteLine($"1 USD = {usd.Value} AZN");
 
-        return Ok(rates);)
+        if (gold != null)
+            Console.WriteLine($"1 Ounce Gold = {gold.Value} AZN");
+
+        return Ok(rates);
     }
 }
 ```
 
----
 
 ##  Models
 
-The package returns a list of `CbarCurrency` objects. Key properties include:
+The package returns a list of `CbarCurrency` objects. The data structure is flattened for ease of use.
 
-* `Code`: Currency or Metal code (e.g., `USD`, `EUR`, `XAU`).
-* `Name`: Name of the currency in Azerbaijani (e.g., `1 ABŞ dolları`, `Qızıl`).
-* `Value`: The exchange rate (Decimal). *This is the official rate provided by CBAR.*
-* `Nominal`: The unit amount (e.g., `1`, `100`). *Example: For JPY, Nominal is 100.*
-* `CurrencyType`: The category of the currency (e.g., `Xarici valyutalar` for currencies, `Bank metalları` for metals).
+| Property | Type | Description |
+| --- | --- | --- |
+| `Code` | `string` | The ISO code (e.g., `USD`, `EUR`, `XAU`). |
+| `Name` | `string` | The localized name (e.g., `1 ABŞ dolları`, `Qızıl`). |
+| `Value` | `decimal` | The official exchange rate. Parsed safely using `decimal`. |
+| `Nominal` | `int` | The unit amount (e.g., `1`, `100`). Useful for currencies like JPY (100). |
+| `CurrencyType` | `string` | The category (e.g., `Xarici valyutalar` or `Bank metalları`). |
 
+
+---
+
+## Contributing
+
+Contributions and suggestions are welcome. Please open an issue or submit a pull request.
 
 ---
 
 ## License
 
-MIT License.
+This project is licensed under the MIT License.
 
 ---
 

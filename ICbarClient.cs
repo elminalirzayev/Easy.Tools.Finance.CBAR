@@ -1,4 +1,7 @@
-﻿using Easy.Tools.Finance.CBAR.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Easy.Tools.Finance.CBAR
 {
@@ -9,16 +12,17 @@ namespace Easy.Tools.Finance.CBAR
     {
         /// <summary>
         /// Retrieves today's exchange rates asynchronously.
-        /// Includes built-in retry logic.
         /// </summary>
+        /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
         /// <returns>A list of currency rates.</returns>
-        Task<List<CbarCurrency>> GetTodayRatesAsync();
+        Task<List<CbarCurrency>> GetTodayRatesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves exchange rates for a specific date asynchronously.
         /// </summary>
         /// <param name="date">The date for which rates are requested.</param>
+        /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
         /// <returns>A list of currency rates for the specified date.</returns>
-        Task<List<CbarCurrency>> GetRatesByDateAsync(DateTime date);
+        Task<List<CbarCurrency>> GetRatesByDateAsync(DateTime date, CancellationToken cancellationToken = default);
     }
 }
