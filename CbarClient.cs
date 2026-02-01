@@ -26,6 +26,11 @@ namespace Easy.Tools.Finance.CBAR
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+
+            if (string.IsNullOrWhiteSpace(_options.BaseUrl) || !Uri.IsWellFormedUriString(_options.BaseUrl, UriKind.Absolute))
+            {
+                throw new ArgumentException("A valid BaseUrl must be provided in CbarOptions.");
+            }
         }
 
         public async Task<List<CbarCurrency>> GetTodayRatesAsync(CancellationToken cancellationToken = default)

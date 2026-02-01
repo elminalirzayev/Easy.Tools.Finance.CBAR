@@ -22,7 +22,7 @@
 		<AssemblyTitle>Easy.Tools.Finance.CBAR</AssemblyTitle>
 		<AssemblyName>Easy.Tools.Finance.CBAR</AssemblyName>
 		<PackageId>Easy.Tools.Finance.CBAR</PackageId>
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 		<PackageIcon>icon.png</PackageIcon>
 		<Authors>Elmin Alirzayev</Authors>
 		<Company>Easy Code Tools</Company>
@@ -59,8 +59,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net47' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net48'">
