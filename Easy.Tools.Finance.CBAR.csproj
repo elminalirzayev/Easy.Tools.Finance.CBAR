@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0;netstandard2.0;netstandard2.1;net48;net47;</TargetFrameworks>
+		<TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0;netstandard2.0;netstandard2.1;net48;net47;net472;</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -28,7 +28,8 @@
 		<Company>Easy Code Tools</Company>
 		<Copyright>Copyright © Elmin Alirzayev 2025</Copyright>
 		<Description>A lightweight .NET library for fetching exchange rates from the Central Bank of Azerbaijan (CBAR/AMB).</Description>
-		<PackageTags>cbar amb azerbaijan manat azn finance currency exchange-rates xml azərbaycan mərkəzi bank məzənnə qızıl valyuta dollar avro kurs</PackageTags>	<RepositoryUrl>https://github.com/elminalirzayev/Easy.Tools.Finance.CBAR</RepositoryUrl>
+		<PackageTags>cbar amb azerbaijan manat azn finance currency exchange-rates xml azərbaycan mərkəzi bank məzənnə qızıl valyuta dollar avro kurs</PackageTags>
+		<RepositoryUrl>https://github.com/elminalirzayev/Easy.Tools.Finance.CBAR</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/elminalirzayev/Easy.Tools.Finance.CBAR</PackageProjectUrl>
