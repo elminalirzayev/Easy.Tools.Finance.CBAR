@@ -15,13 +15,12 @@ namespace Easy.Tools.Finance.CBAR
 
         // PERF: XmlSerializer is made static to prevent memory leaks (cached instance).
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(CbarResponse));
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CbarClient"/> class.
         /// </summary>
         /// <param name="httpClient">The HTTP client instance.</param>
         /// <param name="options">Configuration options.</param>
-
         public CbarClient(HttpClient httpClient, IOptions<CbarOptions> options)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
